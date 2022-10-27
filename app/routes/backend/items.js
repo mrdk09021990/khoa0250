@@ -190,17 +190,20 @@ router.get(('/form(/:id)?'), async (req, res, next) => {
 // SAVE = ADD EDIT
 router.post('/save',  (req, res, next) => {
 	uploadAvatar (req, res, async (errUpload) => {
-
+		
 		req.body = JSON.parse(JSON.stringify(req.body));
+
 		ValidateItems.validator(req);
 
 		let item = Object.assign(req.body);
+		
 		let errors = req.validationErrors();
 
 		if (errUpload){
 			errors.push({param: 'avatar' , msg: errUpload});
 			}
-		item.avatar = (req.file.filename);
+		
+		
 
 		if(typeof item !== "undefined" && item.id !== "" ){	// edit
 			if(errors) { 
@@ -219,6 +222,7 @@ router.post('/save',  (req, res, next) => {
 					name			: item.name,
 					content			: item.content,
 					status			: item.status,
+					avatar 			: item.avatar,
 					slug 			: StringHelpers.createAlias(item.slug),
 					groups :  {
 						id     : item.groups_id,
@@ -254,7 +258,8 @@ router.post('/save',  (req, res, next) => {
 				item.groups = {
 					id     : item.groups_id,
 					name   : item.groups_name,	
-				}
+				},
+				item.avatar = req.file.filename;
 				
 				new ItemsModel(item).save().then(()=> {
 					req.flash('success', notify.ADD_SUCCESS, false);
